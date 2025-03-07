@@ -26,24 +26,60 @@ async function run() {
     await client.connect();
 
     const reviewsCollection = client.db("All-Review").collection("Review");
+    const watchListCollection = client.db("All-Review").collection("watchList");
 
     app.get("/reviews", async (req, res) => {
       const games = await reviewsCollection.find().toArray();
       res.send(games);
     });
 
-    app.get('/reviews/:id', async(req, res) =>{
-      const id = req.params.id
-  
-      const query = {_id: new ObjectId(id)}
-      const result = await reviewsCollection.findOne(query)
-      res.send(result)
-    })
+    app.get("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+
+      const query = { _id: new ObjectId(id) };
+      const result = await reviewsCollection.findOne(query);
+      res.send(result);
+    });
 
     app.post("/reviews", async (req, res) => {
       const review = req.body;
-      console.log(review);
+
       const result = await reviewsCollection.insertOne(review);
+      res.send(result);
+    });
+
+    app.put("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateReview = req.body;
+
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const review = {
+        $set: {
+          
+          photo: updateReview.photo,
+          title: updateReview.title,
+          review: updateReview.review,
+          rating: updateReview.rating,
+          year: updateReview.year,
+          genres: updateReview.genres,
+        },
+      };
+      const result = await reviewsCollection.updateOne(filter, review, options);
+      res.send(result);
+    });
+
+    // WatchList-Collection
+
+    app.get("/watchLists", async (req, res) => {
+      const result = await watchListCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/watchLists", async (req, res) => {
+      const watchLists = req.body;
+
+      const result = await watchListCollection.insertOne(watchLists);
       res.send(result);
     });
 
