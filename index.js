@@ -56,7 +56,6 @@ async function run() {
       const options = { upsert: true };
       const review = {
         $set: {
-          
           photo: updateReview.photo,
           title: updateReview.title,
           review: updateReview.review,
@@ -66,6 +65,13 @@ async function run() {
         },
       };
       const result = await reviewsCollection.updateOne(filter, review, options);
+      res.send(result);
+    });
+
+    app.delete("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await reviewsCollection.deleteOne(query);
       res.send(result);
     });
 
